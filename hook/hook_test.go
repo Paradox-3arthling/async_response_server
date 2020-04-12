@@ -1,16 +1,17 @@
-package hook_test
+package hook
 
-import (
-	"testing"
-
-	"github.com/paradox-3arthling/mpesa_api/hook"
-)
+import "testing"
 
 func TestHookWorking(t *testing.T) {
 	port := ":8080"
-	url, err := hook.CreateServer(port, "/mpesa_hook")
+	path := "/mpesa_hook"
+	url := "http://localhost" + port + path
+	url_got, err := CreateServer(port, path)
 	if err != nil {
-		t.Errorf("err->%d", err)
+		t.Errorf("Got an error:%s\n", err)
+	}
+	if url_got != url {
+		t.Errorf("expected:%s, got:%s \n", url, url_got)
 	}
 	//call post web hook for tesing
 }
