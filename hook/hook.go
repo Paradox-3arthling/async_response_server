@@ -2,30 +2,47 @@ package hook
 
 import (
 	"fmt"
-	"log"
+	// "log"
 	"net/http"
 )
 
 // 1. func to for making hook server
 //    make sure it's https for safety
-func CreateServer(port, path string) {
+func CreateHookServerAsync(port, path string, err chan error) (*http.Server, error) {
 	// (string, error) {
 	//new_str := port + path
+	// http.HandleFunc(path, handler)
 	// make server
-	http.HandleFunc(path, handler)
+	// handle := http.HandlerFunc(handler)
+	hook_svr := &http.Server{
+		Addr:    port,
+		Handler: http.HandlerFunc(mpesaHandler),
+	}
 	// mess := make(chan string)
-	log.Fatal(http.ListenAndServe(port, nil))
-	// return new_str, nil
+	// return http.ListenAndServe(port, nil)
+	return hook_svr, nil
+}
+func createServer(svr *http.Server) {
+
 }
 
 // make handler made up of params to make url to be used
 
 // 2. func handler for setting up hook
-func handler(w http.ResponseWriter, r *http.Request) {
+func mpesaHandler(w http.ResponseWriter, r *http.Request) {
+	if r.URL.Path == "/success" {
+		mpesaSucc(w)
+		// } else if r.URL.Path == "" { //for timeout callback
+		//URL
+	} else {
+		http.NotFound(w, r)
+		return
+	}
+}
+func mpesaSucc(w http.ResponseWriter) {
 	succ_mess := `{
-	"ResponseCode": "00000000",
-	"ResponseDesc": "success"
-	}`
+		"ResponseCode": "00000000",
+		"ResponseDesc": "success"
+		}`
 	fmt.Fprintf(w, succ_mess)
-	// fmt.Fprintf(w, "Hi there, I love %s!", r.URL.Path[1:])
 }

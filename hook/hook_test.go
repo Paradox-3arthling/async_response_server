@@ -23,11 +23,12 @@ func TestHookWorking(t *testing.T) {
 	// make call back server
 	// t.Logf("Creating server")
 	// CreateServer(port, path)
-	ts := httptest.NewServer(http.HandlerFunc(handler))
+	ts := httptest.NewServer(http.HandlerFunc(mpesaHandler))
 	defer ts.Close()
 	//call post web hook for tesing
 	test_inp := `{test: "abc"}`
-	resp, err := http.Post(ts.URL, "application/json", strings.NewReader(test_inp))
+	t.Log("url for safaricom callback: ", ts.URL+"/success")
+	resp, err := http.Post(ts.URL+"/success", "application/json", strings.NewReader(test_inp))
 	if err != nil {
 		t.Errorf("error posting:\n%s\n", err)
 	}
@@ -37,9 +38,13 @@ func TestHookWorking(t *testing.T) {
 	if err != nil {
 		t.Errorf("error reading:\n%s\n", err)
 	}
-	t.Logf("body is:\n%s", string(body))
-	// succ_mess := `{
-	// 	"ResponseCode": "00000000",
-	// 	"ResponseDesc": "success"
-	// 	  "}`
+	// t.Logf("body is:\n%s", string(body))
+	succ_mess := `{
+		"ResponseCode": "00000000",
+		"ResponseDesc": "success"
+		}`
+	if succ_mess != string(body) {
+		t.Errorf("got:%s\n expected:%s\n", string(body), succ_mess)
+	}
+
 }
