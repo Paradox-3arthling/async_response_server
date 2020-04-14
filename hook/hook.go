@@ -2,28 +2,28 @@ package hook
 
 import (
 	"fmt"
+	"log"
+
 	// "log"
 	"net/http"
 )
 
 // 1. func to for making hook server
 //    make sure it's https for safety
-func CreateHookServerAsync(port, path string, err chan error) (*http.Server, error) {
-	// (string, error) {
-	//new_str := port + path
-	// http.HandleFunc(path, handler)
-	// make server
-	// handle := http.HandlerFunc(handler)
+func CreateHookServerAsync(port, path string) *http.Server {
 	hook_svr := &http.Server{
 		Addr:    port,
 		Handler: http.HandlerFunc(mpesaHandler),
 	}
-	// mess := make(chan string)
-	// return http.ListenAndServe(port, nil)
-	return hook_svr, nil
+
+	go createServer(hook_svr)
+	return hook_svr
 }
 func createServer(svr *http.Server) {
-
+	if err := svr.ListenAndServe(); err != nil {
+		log.Fatal("Server exited on the error:\n", err, "\n")
+		svr.Close()
+	}
 }
 
 // make handler made up of params to make url to be used
