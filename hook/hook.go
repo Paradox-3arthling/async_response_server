@@ -30,11 +30,11 @@ func createServer(svr *http.Server) {
 
 // 2. func handler for setting up hook
 func mpesaHandler(w http.ResponseWriter, r *http.Request) {
-	if r.URL.Path == "/success" {
+	switch r.URL.Path {
+	case "/success":
 		mpesaSucc(w)
-		// } else if r.URL.Path == "" { //for timeout callback
-		//URL
-	} else {
+	// case "/timeout" //for timeout callback
+	default:
 		http.NotFound(w, r)
 		return
 	}
