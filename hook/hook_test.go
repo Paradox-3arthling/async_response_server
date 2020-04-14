@@ -44,7 +44,8 @@ func TestHookWorking(t *testing.T) {
 		"ResponseDesc": "success"
 		}`
 	if succ_mess != string(body) {
-		t.Errorf("got:%s\n expected:%s\n", string(body), succ_mess)
+		t.Logf("got:%s\n expected:%s\n", string(body), succ_mess)
+		t.Fail()
 	}
 
 }
