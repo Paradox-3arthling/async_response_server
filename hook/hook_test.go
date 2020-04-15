@@ -3,18 +3,22 @@ package hook
 import (
 	"io/ioutil"
 	"net/http"
-	"net/http/httptest"
 	"strings"
 	"testing"
 )
 
 func TestHookWorking(t *testing.T) {
-	ts := httptest.NewServer(http.HandlerFunc(mpesaHandler))
+	// ts := httptest.NewServer(http.HandlerFunc(mpesaHandler))
+	// url := ts.URL
+	port := ":8420"
+	path := "/mpesa_hook"
+	ts := CreateHookServerAsync(port, path)
+	url := "http://127.0.0.1" + port + path
 	defer ts.Close()
 	//call post web hook for tesing
 	test_inp := `{test: "abc"}`
-	t.Log("url for safaricom callback: ", ts.URL+"/success")
-	resp, err := http.Post(ts.URL+"/success", "application/json", strings.NewReader(test_inp))
+	t.Log("url for safaricom callback: ", url)
+	resp, err := http.Post(url, "application/json", strings.NewReader(test_inp))
 	if err != nil {
 		t.Errorf("error posting:\n%s\n", err)
 	}
