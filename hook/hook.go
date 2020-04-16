@@ -2,6 +2,7 @@ package hook
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 
 	"net/http"
@@ -30,7 +31,7 @@ func mpesaHandlerFunc(path string) func(http.ResponseWriter, *http.Request) {
 	return func(w http.ResponseWriter, r *http.Request) {
 		switch r.URL.Path {
 		case path:
-			mpesaSucc(w)
+			mpesaSucc(w, r)
 		// case "/timeout" //for timeout callback
 		default:
 			http.NotFound(w, r)
@@ -38,7 +39,12 @@ func mpesaHandlerFunc(path string) func(http.ResponseWriter, *http.Request) {
 		}
 	}
 }
-func mpesaSucc(w http.ResponseWriter) {
+func mpesaSucc(w http.ResponseWriter, r *http.Request) {
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Printf("error reading:\n%s\n", err)
+	}
+	log.Printf("type:%T\nbody:%s\n", body, body)
 	succ_mess := `{
 		"ResponseCode": "00000000",
 		"ResponseDesc": "success"
