@@ -8,6 +8,14 @@ import (
 	"net/http"
 )
 
+func CreateHookServerSync(port, path string) {
+	hook_svr := &http.Server{
+		Addr:    port,
+		Handler: http.HandlerFunc(mpesaHandlerFunc(path)),
+	}
+	createServer(hook_svr)
+}
+
 // 1. func to for making hook server
 //    make sure it's https for safety
 func CreateHookServerAsync(port, path string) *http.Server {
@@ -42,12 +50,13 @@ func mpesaHandlerFunc(path string) func(http.ResponseWriter, *http.Request) {
 func mpesaSucc(w http.ResponseWriter, r *http.Request) {
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
-		log.Printf("error reading:\n%s\n", err)
+		fmt.Printf("error reading:\n%s\n", err)
 	}
-	log.Printf("type:%T\nbody:%s\n", body, body)
+	fmt.Printf("type:%T\nbody:%s\n", body, body)
 	succ_mess := `{
 		"ResponseCode": "00000000",
 		"ResponseDesc": "success"
 		}`
+	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, succ_mess)
 }
