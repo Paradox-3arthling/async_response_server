@@ -33,14 +33,12 @@ func TestHookWorking(t *testing.T) {
 	}
 	// t.Logf("body is:\n%s", string(body))
 	if succ_mess != string(body) {
-		t.Logf("got:%s\n expected:%s\n", string(body), succ_mess)
-		t.Fail()
+		t.Errorf("got:%s\n expected:%s\n", string(body), succ_mess)
 	}
 	t.Log("waiting on info")
 	feedback := <-feedback_c
 	if feedback != succ_mess {
-		t.Logf("got:%s\n expected:%s\n", feedback, succ_mess)
-		t.Fail()
+		t.Errorf("got:%s\n expected:%s\n", feedback, succ_mess)
 	}
 
 }
