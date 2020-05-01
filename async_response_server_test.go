@@ -7,20 +7,27 @@ import (
 	"testing"
 )
 
+var succ_mess string = `{
+	"ResponseCode": "00000000",
+	"ResponseDesc": "success"
+	}`
+
 func TestHookWorking(t *testing.T) {
-	// ts := httptest.NewServer(http.HandlerFunc(mpesaHandler))
-	// url := ts.URL
 	port := ":8420"
 	// success_svr_resp := ""
 	ts := CreateHookServerAsync(port)
-	defer ts.Close()
-	//call post web hook for tesing
-	succ_mess := `{
-		"ResponseCode": "00000000",
-		"ResponseDesc": "success"
-		}`
 	t.Logf("The callback URL is '%s'n", ts.Url)
-	resp, err := http.Post(ts.Url, "application/json", strings.NewReader(succ_mess))
+	defer ts.Close()
+	go simulateExternalPOSTRequest(t, ts.Url)
+	t.Log("waiting on info")
+	feedback := <-ts.Feed_back
+	ts.Feed_back <- succ_mess
+	if feedback != succ_mess {
+		t.Errorf("got:%s\n expected:%s\n", feedback, succ_mess)
+	}
+}
+func simulateExternalPOSTRequest(t *testing.T, url string) {
+	resp, err := http.Post(url, "application/json", strings.NewReader(succ_mess))
 	if err != nil {
 		t.Errorf("error posting:\n%s\n", err)
 	}
@@ -34,10 +41,4 @@ func TestHookWorking(t *testing.T) {
 	if succ_mess != string(body) {
 		t.Errorf("got:%s\n expected:%s\n", string(body), succ_mess)
 	}
-	t.Log("waiting on info")
-	feedback := <-ts.Feed_back
-	if feedback != succ_mess {
-		t.Errorf("got:%s\n expected:%s\n", feedback, succ_mess)
-	}
-
 }
