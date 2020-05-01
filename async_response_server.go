@@ -20,12 +20,9 @@ func (svr *ServerInfo) Close() {
 
 // features to be considered
 // 1. On making successful http server we'll create a secure TLS server
-func CreateHookServerAsync(port, path string) *ServerInfo {
-	// features to be considered
-	// 1. check if svr.Feed_back has been assined if so, keep using it / maybe make not that u can't assing this var
-	//    but read from it (if possible)
-	//    for now am re-assigning
+func CreateHookServerAsync(port string) *ServerInfo {
 	feed_back_chan := make(chan string)
+	path := "/response_path"
 	svr := &http.Server{
 		Addr:    port,
 		Handler: http.HandlerFunc(mpesaHandlerFunc(path, feed_back_chan)),
@@ -34,7 +31,7 @@ func CreateHookServerAsync(port, path string) *ServerInfo {
 	return &ServerInfo{
 		Svr:       svr,
 		Feed_back: feed_back_chan,
-		Url:       "http://127.0.0.1" + port,
+		Url:       "http://127.0.0.1" + port + path,
 	}
 
 }

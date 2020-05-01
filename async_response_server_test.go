@@ -11,18 +11,16 @@ func TestHookWorking(t *testing.T) {
 	// ts := httptest.NewServer(http.HandlerFunc(mpesaHandler))
 	// url := ts.URL
 	port := ":8420"
-	path := "/mpesa_hook"
 	// success_svr_resp := ""
-	ts := CreateHookServerAsync(port, path)
-	url := ts.Url + path
+	ts := CreateHookServerAsync(port)
 	defer ts.Close()
 	//call post web hook for tesing
 	succ_mess := `{
 		"ResponseCode": "00000000",
 		"ResponseDesc": "success"
 		}`
-	t.Log("url for safaricom callback: ", url)
-	resp, err := http.Post(url, "application/json", strings.NewReader(succ_mess))
+	t.Logf("The callback URL is '%s'n", ts.Url)
+	resp, err := http.Post(ts.Url, "application/json", strings.NewReader(succ_mess))
 	if err != nil {
 		t.Errorf("error posting:\n%s\n", err)
 	}
