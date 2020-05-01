@@ -17,17 +17,31 @@ func CreateHookServerSync(port, path string) {
 	createServer(hook_svr)
 }
 
-// 1. func to for making hook server
-//    make sure it's https for safety
-func CreateHookServerAsync(port, path string) (*http.Server, chan string) {
-	feedback_c := make(chan string)
-	hook_svr := &http.Server{
+type ServerInfo struct {
+	Svr       *http.Server
+	Feed_back chan string
+	Url       string
+}
+
+// features to be considered
+// 1. On making successful http server we'll create a secure TLS server
+func CreateHookServerAsync(port, path string) *ServerInfo {
+	// features to be considered
+	// 1. check if svr.Feed_back has been assined if so, keep using it / maybe make not that u can't assing this var
+	//    but read from it (if possible)
+	//    for now am re-assigning
+	feed_back_chan := make(chan string)
+	svr := &http.Server{
 		Addr:    port,
-		Handler: http.HandlerFunc(mpesaHandlerFunc(path, feedback_c)),
+		Handler: http.HandlerFunc(mpesaHandlerFunc(path, feed_back_chan)),
+	}
+	go createServer(svr)
+	return &ServerInfo{
+		Svr:       svr,
+		Feed_back: feed_back_chan,
+		Url:       "http://127.0.0.1" + port,
 	}
 
-	go createServer(hook_svr)
-	return hook_svr, feedback_c
 }
 func createServer(svr *http.Server) {
 	if err := svr.ListenAndServe(); err != nil && err != http.ErrServerClosed {
