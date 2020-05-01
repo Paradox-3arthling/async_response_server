@@ -12,13 +12,16 @@ func TestHookWorking(t *testing.T) {
 	// url := ts.URL
 	port := ":8420"
 	path := "/mpesa_hook"
-	ts := CreateHookServerAsync(port, path)
+	ts, feedback_c := CreateHookServerAsync(port, path)
 	url := "http://127.0.0.1" + port + path
 	defer ts.Close()
 	//call post web hook for tesing
-	test_inp := `{test: "abc"}`
+	succ_mess := `{
+		"ResponseCode": "00000000",
+		"ResponseDesc": "success"
+		}`
 	t.Log("url for safaricom callback: ", url)
-	resp, err := http.Post(url, "application/json", strings.NewReader(test_inp))
+	resp, err := http.Post(url, "application/json", strings.NewReader(succ_mess))
 	if err != nil {
 		t.Errorf("error posting:\n%s\n", err)
 	}
@@ -29,12 +32,14 @@ func TestHookWorking(t *testing.T) {
 		t.Errorf("error reading:\n%s\n", err)
 	}
 	// t.Logf("body is:\n%s", string(body))
-	succ_mess := `{
-		"ResponseCode": "00000000",
-		"ResponseDesc": "success"
-		}`
 	if succ_mess != string(body) {
 		t.Logf("got:%s\n expected:%s\n", string(body), succ_mess)
+		t.Fail()
+	}
+	t.Log("waiting on info")
+	feedback := <-feedback_c
+	if feedback != succ_mess {
+		t.Logf("got:%s\n expected:%s\n", feedback, succ_mess)
 		t.Fail()
 	}
 
