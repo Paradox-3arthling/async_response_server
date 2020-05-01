@@ -1,3 +1,3 @@
-module github.com/paradox-3arthling/mpesa_api
+module github.com/paradox-3arthling/simple_server
 
 go 1.13
