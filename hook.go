@@ -53,9 +53,7 @@ func mpesaHandlerFunc(path string, feedback_chan chan string) func(http.Response
 				fmt.Printf("error reading:\n%s\n", err)
 			}
 			// fmt.Printf("===server message===\ntype:%T\nbody:%s\n===\n", body, body)
-			fmt.Println("info being sent")
 			go sendBackInfo(feedback_chan, string(body))
-			fmt.Println("info sent")
 			// defer close(feedback_chan)
 			w.Header().Set("Content-Type", "application/json")
 			fmt.Fprintf(w, string(body))
