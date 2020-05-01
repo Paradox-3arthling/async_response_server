@@ -23,6 +23,10 @@ type ServerInfo struct {
 	Url       string
 }
 
+func (svr *ServerInfo) Close() {
+	svr.Svr.Close()
+}
+
 // features to be considered
 // 1. On making successful http server we'll create a secure TLS server
 func CreateHookServerAsync(port, path string) *ServerInfo {
