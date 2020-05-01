@@ -1,4 +1,4 @@
-package hook
+package async_response_server
 
 import (
 	"fmt"
@@ -7,15 +7,6 @@ import (
 
 	"net/http"
 )
-
-func CreateHookServerSync(port, path string) {
-	feedback_c := make(chan string)
-	hook_svr := &http.Server{
-		Addr:    port,
-		Handler: http.HandlerFunc(mpesaHandlerFunc(path, feedback_c)),
-	}
-	createServer(hook_svr)
-}
 
 type ServerInfo struct {
 	Svr       *http.Server
@@ -55,6 +46,7 @@ func createServer(svr *http.Server) {
 }
 func sendBackInfo(feedback_chan chan string, body string) {
 	feedback_chan <- body
+	close(feedback_chan)
 }
 
 // 2. func handler for setting up hook
@@ -72,7 +64,6 @@ func mpesaHandlerFunc(path string, feedback_chan chan string) func(http.Response
 			}
 			// fmt.Printf("===server message===\ntype:%T\nbody:%s\n===\n", body, body)
 			go sendBackInfo(feedback_chan, string(body))
-			// defer close(feedback_chan)
 			w.Header().Set("Content-Type", "application/json")
 			fmt.Fprintf(w, string(body))
 		default:
