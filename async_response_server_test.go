@@ -1,4 +1,4 @@
-package hook
+package async_response_server
 
 import (
 	"io/ioutil"
@@ -12,8 +12,9 @@ func TestHookWorking(t *testing.T) {
 	// url := ts.URL
 	port := ":8420"
 	path := "/mpesa_hook"
-	ts, feedback_c := CreateHookServerAsync(port, path)
-	url := "http://127.0.0.1" + port + path
+	// success_svr_resp := ""
+	ts := CreateHookServerAsync(port, path)
+	url := ts.Url + path
 	defer ts.Close()
 	//call post web hook for tesing
 	succ_mess := `{
@@ -31,12 +32,12 @@ func TestHookWorking(t *testing.T) {
 	if err != nil {
 		t.Errorf("error reading:\n%s\n", err)
 	}
-	// t.Logf("body is:\n%s", string(body))
+	t.Logf("body received from server:\n%s", string(body))
 	if succ_mess != string(body) {
 		t.Errorf("got:%s\n expected:%s\n", string(body), succ_mess)
 	}
 	t.Log("waiting on info")
-	feedback := <-feedback_c
+	feedback := <-ts.Feed_back
 	if feedback != succ_mess {
 		t.Errorf("got:%s\n expected:%s\n", feedback, succ_mess)
 	}
